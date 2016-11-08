@@ -45,7 +45,7 @@ describe OodJob::NodeInfo do
       it { expect(args[:procs]).to have_received(:to_i).with(no_args) }
     end
 
-    context 'when name not defined' do
+    context 'when :name not defined' do
       let(:args) { super().reject { |k, v| k == :name } }
 
       it 'raises ArgumentError' do
@@ -53,7 +53,7 @@ describe OodJob::NodeInfo do
       end
     end
 
-    context 'when procs not defined' do
+    context 'when :procs not defined' do
       let(:args) { super().reject { |k, v| k == :procs } }
 
       it 'raises ArgumentError' do

@@ -32,7 +32,7 @@ describe OodJob::Adapter do
   it { is_expected.to respond_to(:delete).with(0).arguments.and_keywords(:id) }
 
   describe '.new' do
-    context 'when cluster not defined' do
+    context 'when :cluster not defined' do
       let(:args) { super().reject { |k, v| k == :cluster } }
 
       it 'raises ArgumentError' do
@@ -58,7 +58,7 @@ describe OodJob::Adapter do
   end
 
   describe '#submit' do
-    context 'when script not defined' do
+    context 'when :script not defined' do
       it 'raises ArgumentError' do
         expect { adapter.submit }.to raise_error(ArgumentError)
       end

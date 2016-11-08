@@ -1,3 +1,5 @@
+require 'pathname'
+
 module OodJob
   # An object that describes a batch job before it is submitted. This includes
   # the resources this batch job will require of the resource manager.

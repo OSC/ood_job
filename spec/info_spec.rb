@@ -79,7 +79,7 @@ describe OodJob::Info do
       it { expect(args[:wallclock_time]).to have_received(:to_i).with(no_args) }
     end
 
-    context 'when id not defined' do
+    context 'when :id not defined' do
       let(:args) { super().reject { |k, v| k == :id } }
 
       it 'raises ArgumentError' do
@@ -87,7 +87,7 @@ describe OodJob::Info do
       end
     end
 
-    context 'when status not defined' do
+    context 'when :status not defined' do
       let(:args) { super().reject { |k, v| k == :status } }
 
       it 'raises ArgumentError' do

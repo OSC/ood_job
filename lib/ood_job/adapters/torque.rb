@@ -21,24 +21,24 @@ module OodJob
       def submit(script:, after: [], afterok: [], afternotok: [], afterany: [])
         # Set headers
         headers = {}
-        headers.merge(job_arguments: script.args.join(' ')) if !script.args.nil?
-        headers.merge(Hold_Types: :u) if script.submit_as_hold
-        headers.merge(Rerunable: script.rerunnable ? 'y' : 'n') if !script.rerunnable.nil?
-        headers.merge(init_work_dir: script.workdir) if !script.workdir.nil?
-        headers.merge(Mail_Users: script.email.join(',')) if !script.email.nil?
+        headers.merge!(job_arguments: script.args.join(' ')) if !script.args.nil?
+        headers.merge!(Hold_Types: :u) if script.submit_as_hold
+        headers.merge!(Rerunable: script.rerunnable ? 'y' : 'n') if !script.rerunnable.nil?
+        headers.merge!(init_work_dir: script.workdir) if !script.workdir.nil?
+        headers.merge!(Mail_Users: script.email.join(',')) if !script.email.nil?
         mail_points  = ''
         mail_points += 'b' if script.email_on_started
         mail_points += 'e' if script.email_on_terminated
-        headers.merge(Mail_Points: mail_points) if !mail_points.empty?
-        headers.merge(Job_Name: script.job_name) if !script.job_name.nil?
+        headers.merge!(Mail_Points: mail_points) if !mail_points.empty?
+        headers.merge!(Job_Name: script.job_name) if !script.job_name.nil?
         # ignore input_path (not defined in Torque)
-        headers.merge(Output_Path: script.output_path) if !script.output_path.nil?
-        headers.merge(Error_Path: script.error_path) if !script.error_path.nil?
-        headers.merge(Join_Path: 'oe') if script.join_files
-        headers.merge(reservation_id: script.reservation_id) if !script.reservation_id.nil?
-        headers.merge(Priority: script.priority) if !script.priority.nil?
-        headers.merge(Execution_Time: script.start_time.localtime.strftime("%C%y%m%d%H%M.%S")) if !script.start_time.nil?
-        headers.merge(Account_Name: script.accounting_id) if !script.accounting_id.nil?
+        headers.merge!(Output_Path: script.output_path) if !script.output_path.nil?
+        headers.merge!(Error_Path: script.error_path) if !script.error_path.nil?
+        headers.merge!(Join_Path: 'oe') if script.join_files
+        headers.merge!(reservation_id: script.reservation_id) if !script.reservation_id.nil?
+        headers.merge!(Priority: script.priority) if !script.priority.nil?
+        headers.merge!(Execution_Time: script.start_time.localtime.strftime("%C%y%m%d%H%M.%S")) if !script.start_time.nil?
+        headers.merge!(Account_Name: script.accounting_id) if !script.accounting_id.nil?
 
         # Set dependencies
         after      = [after].flatten.map(&:to_s)
@@ -50,16 +50,16 @@ module OodJob
         depend << "afterok:#{afterok.join(':')}"       if !afterok.empty?
         depend << "afternotok:#{afternotok.join(':')}" if !afternotok.empty?
         depend << "afterany:#{afterany.join(':')}"     if !afterany.empty?
-        headers.merge(depend: depend.join(','))        if !depend.empty?
+        headers.merge!(depend: depend.join(','))        if !depend.empty?
 
         # Set resources
         resources = {}
-        resources.merge(mem: "#{script.min_phys_memory}KB") if !script.min_phys_memory.nil?
-        resources.merge(walltime: seconds_to_duration(script.wall_time)) if !script.walltime.nil?
-        resources.merge(procs: script.min_procs) if !script.min_procs.nil?
+        resources.merge!(mem: "#{script.min_phys_memory}KB") if !script.min_phys_memory.nil?
+        resources.merge!(walltime: seconds_to_duration(script.wall_time)) if !script.wall_time.nil?
+        resources.merge!(procs: script.min_procs) if !script.min_procs.nil?
         if script.nodes && !script.nodes.empty?
           nodes = uniq_array(script.nodes)
-          resources.merge(nodes: nodes.map {|k, v| k.is_a?(NodeRequest) ? node_request_to_str(k, v) : k }.join('+'))
+          resources.merge!(nodes: nodes.map {|k, v| k.is_a?(NodeRequest) ? node_request_to_str(k, v) : k }.join('+'))
         end
 
         # Set environment variables
@@ -67,9 +67,9 @@ module OodJob
 
         # Set native options
         if script.native
-          headers.merge   native.fetch(:headers, {})
-          resources.merge native.fetch(:resources, {})
-          envvars.merge   native.fetch(:envvars, {})
+          headers.merge!   script.native.fetch(:headers, {})
+          resources.merge! script.native.fetch(:resources, {})
+          envvars.merge!   script.native.fetch(:envvars, {})
         end
 
         # Submit job

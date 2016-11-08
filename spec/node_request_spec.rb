@@ -45,14 +45,14 @@ describe OodJob::NodeRequest do
 
       it { expect(args[:procs]).to have_received(:to_i).with(no_args) }
 
-      context 'and properties is single object' do
+      context 'and :properties is single object' do
         let(:prop) { double(to_s: 'prop') }
         let(:args) { super().merge properties: prop }
 
         it { expect(prop).to have_received(:to_s).with(no_args) }
       end
 
-      context 'and properties is array' do
+      context 'and :properties is array' do
         it { expect(args[:properties][0]).to have_received(:to_s).with(no_args) }
         it { expect(args[:properties][1]).to have_received(:to_s).with(no_args) }
       end

@@ -49,7 +49,7 @@ describe OodJob::Status do
       it { expect(args[:state]).to have_received(:to_sym).with(no_args) }
     end
 
-    context 'when state not defined' do
+    context 'when :state not defined' do
       let(:args) { super().reject { |k, v| k == :state } }
 
       it 'raises ArgumentError' do
@@ -57,7 +57,7 @@ describe OodJob::Status do
       end
     end
 
-    context 'when state is invalid' do
+    context 'when :state is invalid' do
       let(:args) { super().merge state: :invalid_state }
 
       it 'raises OodJob::Status::InvalidState' do

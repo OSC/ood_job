@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pathname'
 
 describe OodJob::Script do
   attribs = %i(
@@ -109,50 +108,50 @@ describe OodJob::Script do
       it { expect(args[:wall_time]).to have_received(:to_i).with(no_args) }
       it { expect(args[:workdir]).to have_received(:to_s).with(no_args) }
 
-      context 'and email is single object' do
+      context 'and :email is single object' do
         let(:email) { double(to_s: 'email') }
         let(:args) { super().merge email: email }
 
         it { expect(email).to have_received(:to_s).with(no_args) }
       end
 
-      context 'and email is array' do
+      context 'and :email is array' do
         it { expect(args[:email][0]).to have_received(:to_s).with(no_args) }
         it { expect(args[:email][1]).to have_received(:to_s).with(no_args) }
       end
 
-      context 'and content responds to #read' do
+      context 'and :content responds to #read' do
         let(:content) { double(read: 'hello world') }
         let(:args) { super().merge content: content }
 
         it { expect(content).to have_received(:read).with(no_args) }
       end
 
-      context 'and content responds to #to_s' do
+      context 'and :content responds to #to_s' do
         it { expect(args[:content]).to have_received(:to_s).with(no_args) }
       end
 
-      context 'and nodes is a single object that responds to #to_s' do
+      context 'and :nodes is a single object that responds to #to_s' do
         let(:node) { double(to_s: 'node1') }
         let(:args) { super().merge nodes: node }
 
         it { expect(node).to have_received(:to_s).with(no_args) }
       end
 
-      context 'and nodes is a single object that responds to #to_h' do
+      context 'and :nodes is a single object that responds to #to_h' do
         let(:node) { double(to_h: {procs: 200, properties: ['test1', 'test2']}) }
         let(:args) { super().merge nodes: node }
 
         it { expect(node).to have_received(:to_h).with(no_args) }
       end
 
-      context 'and nodes is an array of objects' do
+      context 'and :nodes is an array of objects' do
         it { expect(args[:nodes][0]).to have_received(:to_s).with(no_args) }
         it { expect(args[:nodes][1]).to have_received(:to_h).with(no_args) }
       end
     end
 
-    context 'when content not defined' do
+    context 'when :content not defined' do
       let(:args) { super().reject { |k, v| k == :content } }
 
       it 'raises ArgumentError' do
@@ -196,13 +195,13 @@ describe OodJob::Script do
   describe '#content' do
     subject { script.content }
 
-    context 'when content responds to #read' do
+    context 'when responds to #read' do
       let(:args) { super().merge content: StringIO.new('hello world!') }
 
       it { is_expected.to eq('hello world!') }
     end
 
-    context 'when content responds to #to_s' do
+    context 'when responds to #to_s' do
       let(:args) { super().merge content: 'test 123' }
 
       it { is_expected.to eq('test 123') }
