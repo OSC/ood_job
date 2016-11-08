@@ -65,7 +65,7 @@ those specified in the script file itself.
 
 Once you have a script object you are satisfied with, you will want to submit
 it to a given resource manager. This is where the `OodCluster::Cluster` object
-([ood_cluster](https://github.com/OSC/ood_cluster)) will come into play. This
+([ood_cluster](https://github.com/OSC/ood_cluster/)) will come into play. This
 object describes a given cluster and its various servers (one of which is a
 resource manager).
 
