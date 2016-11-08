@@ -11,7 +11,7 @@ module OodJob
     attr_reader :cluster
 
     # @param cluster [OodCluster::Cluster] cluster that job is submitted to
-    def initialize(cluster:)
+    def initialize(cluster:, **_)
       @cluster = cluster
     end
 
