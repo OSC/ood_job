@@ -35,12 +35,10 @@ script object can consist of either a file or a string of shell code.
 script = OodJob::Script.new(content: Pathname.new("/path/to/my/script"))
 
 # Or a string IO
-script_str = StringIO.new("echo 'begin' && sleep 60 && echo 'done'")
-script = OodJob::Script.new(content: script_str)
+script = OodJob::Script.new(content: StringIO.new("echo 'hello world'"))
 
 # Or a string
-script_str = "echo 'hello world'"
-script = OodJob::Script.new(content: script_str)
+script = OodJob::Script.new(content: "echo 'hello world'")
 ```
 
 A script object must be supplied with an object that responds to the method
