@@ -25,7 +25,7 @@ $ gem install ood_job
 
 ## Usage
 
-### Create a Job
+### Create a Job Script
 
 First we will need a script to submit to the resource manager. The simplest
 script object can consist of either a file or a string of shell code.
@@ -61,7 +61,7 @@ script = OodJob::Script.new(
 Note: Any options supplied when creating a script object **will** override
 those specified in the script file itself.
 
-### Submit a Script
+### Submit a Job
 
 Once you have a script object you are satisfied with, you will want to submit
 it to a given resource manager. This is where the `OodCluster::Cluster` object
