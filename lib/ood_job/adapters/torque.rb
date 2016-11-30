@@ -10,7 +10,8 @@ module OodJob
         'Q' => :queued,
         'H' => :queued_held,
         'R' => :running,
-        'S' => :suspended
+        'S' => :suspended,
+        'E' => :running         # exiting, but still running
       }
 
       # Submit a job with the attributes defined in the job template instance
