@@ -6,7 +6,7 @@ describe OodJob::Status do
   )
 
   states = %i(
-    queued queued_held requeued requeued_held running suspended undetermined
+    queued queued_held running suspended undetermined
   )
 
   # fixture

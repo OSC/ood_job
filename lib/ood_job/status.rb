@@ -17,21 +17,12 @@ module OodJob
     #
     #   # Job has been suspended by the user, the system, or the administrator
     #   :suspended
-    #
-    #   # Job was re-queued by the resource manager and is eligible to run
-    #   :requeued
-    #
-    #   # Job was re-queued by the resource manager and is currently placed on
-    #   # hold by the system, the administrator, or the submitting user
-    #   :requeued_held
     STATES = %i(
       undetermined
       queued
       queued_held
       running
       suspended
-      requeued
-      requeued_held
     )
 
     # The root exception class that all {Status} exceptions inherit from
@@ -69,14 +60,6 @@ module OodJob
     # @!method suspended?
     #   Whether the status is suspended
     #   @return [Boolean] whether suspended
-    #
-    # @!method requeued?
-    #   Whether the status is requeued
-    #   @return [Boolean] whether requeued
-    #
-    # @!method requeued_held?
-    #   Whether the status is requeued_held
-    #   @return [Boolean] whether requeued_held
     STATES.each do |method|
       define_method "#{method}?" do
         state == method
