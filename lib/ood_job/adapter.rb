@@ -29,13 +29,13 @@ module OodJob
     #   #=> "1235.server"
     # @param script [Script] script object that describes the script and
     #   attributes for the submitted job
-    # @param after [String, Array<String>] this job may be scheduled for execution
+    # @param after [#to_s, Array<#to_s>] this job may be scheduled for execution
     #   at any point after dependent jobs have started execution
-    # @param afterok [String, Array<String>] this job may be scheduled for
+    # @param afterok [#to_s, Array<#to_s>] this job may be scheduled for
     #   execution only after dependent jobs have terminated with no errors
-    # @param afternotok [String, Array<String>] this job may be scheduled for
+    # @param afternotok [#to_s, Array<#to_s>] this job may be scheduled for
     #   execution only after dependent jobs have terminated with errors
-    # @param afterany [String, Array<String>] this job may be scheduled for
+    # @param afterany [#to_s, Array<#to_s>] this job may be scheduled for
     #   execution after dependent jobs have terminated
     # @return [String] the job id returned after successfully submitting a job
     def submit(script:, after: [], afterok: [], afternotok: [], afterany: [])
@@ -45,7 +45,7 @@ module OodJob
     # Retrieve job info from the resource manager
     # @abstract Subclass is expected to implement {#info}
     # @raise [NotImplementedError] if subclass did not define {#info}
-    # @param id [String] the id of the job, otherwise get list of all jobs
+    # @param id [#to_s] the id of the job, otherwise get list of all jobs
     #   running on cluster
     # @return [Info, Array<Info>] information describing submitted job
     def info(id: '')
@@ -56,7 +56,7 @@ module OodJob
     # @note Optimized slightly over retrieving complete job information from server
     # @abstract Subclass is expected to implement {#status}
     # @raise [NotImplementedError] if subclass did not define {#status}
-    # @param id [String] the id of the job
+    # @param id [#to_s] the id of the job
     # @return [Status] status of job
     def status(id:)
       raise NotImplementedError, "subclass did not define #status"
@@ -65,7 +65,7 @@ module OodJob
     # Put the submitted job on hold
     # @abstract Subclass is expected to implement {#hold}
     # @raise [NotImplementedError] if subclass did not define {#hold}
-    # @param id [String] the id of the job
+    # @param id [#to_s] the id of the job
     # @return [void]
     def hold(id:)
       raise NotImplementedError, "subclass did not define #hold"
@@ -74,7 +74,7 @@ module OodJob
     # Release the job that is on hold
     # @abstract Subclass is expected to implement {#release}
     # @raise [NotImplementedError] if subclass did not define {#release}
-    # @param id [String] the id of the job
+    # @param id [#to_s] the id of the job
     # @return [void]
     def release(id:)
       raise NotImplementedError, "subclass did not define #release"
@@ -83,7 +83,7 @@ module OodJob
     # Delete the submitted job
     # @abstract Subclass is expected to implement {#delete}
     # @raise [NotImplementedError] if subclass did not define {#delete}
-    # @param id [String] the id of the job
+    # @param id [#to_s] the id of the job
     # @return [void]
     def delete(id:)
       raise NotImplementedError, "subclass did not define #delete"

@@ -1,6 +1,10 @@
+require 'ood_job/refinements/array_wrap'
+
 module OodJob
   # An object that describes a request for a node when submitting a job
   class NodeRequest
+    using Refinements::ArrayWrap
+
     # Number of processors usable by job
     # @return [Fixnum, nil] number of procs
     attr_reader :procs
@@ -13,7 +17,7 @@ module OodJob
     # @param properties [#to_s, Array<#to_s>, nil] list of properties
     def initialize(procs: nil, properties: nil, **_)
       @procs      = procs.to_i unless procs.nil?
-      @properties = [properties].flatten.map(&:to_s) unless properties.nil?
+      @properties = Array.wrap(properties).map(&:to_s) unless properties.nil?
     end
 
     # Convert object to hash

@@ -1,9 +1,12 @@
 require 'pathname'
+require 'ood_job/refinements/array_wrap'
 
 module OodJob
   # An object that describes a batch job before it is submitted. This includes
   # the resources this batch job will require of the resource manager.
   class Script
+    using Refinements::ArrayWrap
+
     # String describing the script to be executed on the remote host
     # @return [String] the script content
     attr_reader :content
@@ -160,7 +163,7 @@ module OodJob
       @rerunnable          = rerunnable unless rerunnable.nil?
       @job_environment     = job_environment.each_with_object({}) { |(k, v), h| h[k.to_s] = v.to_s } unless job_environment.nil?
       @workdir             = Pathname.new(workdir.to_s) unless workdir.nil?
-      @email               = [email].flatten.map(&:to_s) unless email.nil?
+      @email               = Array.wrap(email).map(&:to_s) unless email.nil?
       @email_on_started    = email_on_started unless email_on_started.nil?
       @email_on_terminated = email_on_terminated unless email_on_terminated.nil?
       @job_name            = job_name.to_s unless job_name.nil?
@@ -176,7 +179,7 @@ module OodJob
       @wall_time           = wall_time.to_i unless wall_time.nil?
       @accounting_id       = accounting_id.to_s unless accounting_id.nil?
       @min_procs           = min_procs.to_i unless min_procs.nil?
-      @nodes               = [nodes].flatten.map { |n| n.respond_to?(:to_h) ? NodeRequest.new(n.to_h) : n.to_s } unless nodes.nil?
+      @nodes               = Array.wrap(nodes).map { |n| n.respond_to?(:to_h) ? NodeRequest.new(n.to_h) : n.to_s } unless nodes.nil?
       @native              = native
     end
 

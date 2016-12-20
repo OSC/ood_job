@@ -1,10 +1,13 @@
 require 'pbs'
+require 'ood_job/refinements/array_wrap'
 
 module OodJob
   module Adapters
     # An adapter object that describes the communication with a Torque resource
     # manager for job management.
     class Torque < Adapter
+      using Refinements::ArrayWrap
+
       # Mapping of state characters for PBS
       STATE_MAP = {
         'Q' => :queued,
@@ -20,6 +23,11 @@ module OodJob
       # @raise [Error] if something goes wrong submitting a job
       # @see Adapter#submit
       def submit(script:, after: [], afterok: [], afternotok: [], afterany: [])
+        after      = Array.wrap(after).map(&:to_s)
+        afterok    = Array.wrap(afterok).map(&:to_s)
+        afternotok = Array.wrap(afternotok).map(&:to_s)
+        afterany   = Array.wrap(afterany).map(&:to_s)
+
         # Set headers
         headers = {}
         headers.merge!(job_arguments: script.args.join(' ')) if !script.args.nil?
@@ -42,10 +50,6 @@ module OodJob
         headers.merge!(Account_Name: script.accounting_id) if !script.accounting_id.nil?
 
         # Set dependencies
-        after      = [after].flatten.map(&:to_s)
-        afterok    = [afterok].flatten.map(&:to_s)
-        afternotok = [afternotok].flatten.map(&:to_s)
-        afterany   = [afterany].flatten.map(&:to_s)
         depend = []
         depend << "after:#{after.join(':')}"           if !after.empty?
         depend << "afterok:#{afterok.join(':')}"       if !afterok.empty?
@@ -85,6 +89,7 @@ module OodJob
       # @raise [Error] if something goes wrong getting job info
       # @see Adapter#info
       def info(id: '')
+        id = id.to_s
         info_ary = pbs.get_jobs(id: id).map do |k, v|
           /^(?<job_owner>[\w-]+)@/ =~ v[:Job_Owner]
           allocated_nodes = parse_nodes(v[:exec_host] || "")
@@ -119,6 +124,7 @@ module OodJob
       # @raise [Error] if something goes wrong getting job status
       # @see Adapter#status
       def status(id:)
+        id = id.to_s
         char = pbs.get_job(id, filters: [:job_state])[id][:job_state]
         Status.new(state: STATE_MAP.fetch(char, :undetermined))
       rescue PBS::UnkjobidError
@@ -133,7 +139,7 @@ module OodJob
       # @raise [Error] if something goes wrong holding a job
       # @see Adapter#hold
       def hold(id:)
-        pbs.hold_job(id)
+        pbs.hold_job(id.to_s)
       rescue PBS::UnkjobidError
         nil
       rescue PBS::Error => msg
@@ -146,7 +152,7 @@ module OodJob
       # @raise [Error] if something goes wrong releasing a job
       # @see Adapter#release
       def release(id:)
-        pbs.release_job(id)
+        pbs.release_job(id.to_s)
       rescue PBS::UnkjobidError
         nil
       rescue PBS::Error => msg
@@ -159,7 +165,7 @@ module OodJob
       # @raise [Error] if something goes wrong deleting a job
       # @see Adapter#delete
       def delete(id:)
-        pbs.delete_job(id)
+        pbs.delete_job(id.to_s)
       rescue PBS::UnkjobidError
         nil
       rescue PBS::Error => msg
