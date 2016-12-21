@@ -79,8 +79,8 @@ module OodJob
 
         # Submit job
         pbs.submit_string(script.content, queue: script.queue_name, headers: headers, resources: resources, envvars: envvars)
-      rescue PBS::Error => msg
-        raise Error, msg
+      rescue PBS::Error => e
+        raise Error, e.message
       end
 
       # Retrieve job info from the resource manager
@@ -114,8 +114,8 @@ module OodJob
           id: id,
           status: :undetermined
         )
-      rescue PBS::Error => msg
-        raise Error, msg
+      rescue PBS::Error => e
+        raise Error, e.message
       end
 
       # Retrieve job status from resource manager
@@ -129,8 +129,8 @@ module OodJob
         Status.new(state: STATE_MAP.fetch(char, :undetermined))
       rescue PBS::UnkjobidError
         Status.new(state: :undetermined)
-      rescue PBS::Error => msg
-        raise Error, msg
+      rescue PBS::Error => e
+        raise Error, e.message
       end
 
       # Put the submitted job on hold
@@ -142,8 +142,8 @@ module OodJob
         pbs.hold_job(id.to_s)
       rescue PBS::UnkjobidError
         nil
-      rescue PBS::Error => msg
-        raise Error, msg
+      rescue PBS::Error => e
+        raise Error, e.message
       end
 
       # Release the job that is on hold
@@ -155,8 +155,8 @@ module OodJob
         pbs.release_job(id.to_s)
       rescue PBS::UnkjobidError
         nil
-      rescue PBS::Error => msg
-        raise Error, msg
+      rescue PBS::Error => e
+        raise Error, e.message
       end
 
       # Delete the submitted job
@@ -168,8 +168,8 @@ module OodJob
         pbs.delete_job(id.to_s)
       rescue PBS::UnkjobidError
         nil
-      rescue PBS::Error => msg
-        raise Error, msg
+      rescue PBS::Error => e
+        raise Error, e.message
       end
 
       private
