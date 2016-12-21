@@ -20,14 +20,15 @@ describe OodJob::Adapters::Torque do
 
     context 'when :script is defined' do
       before { allow(PBS::Batch).to receive(:new) { pbs } }
-      let(:pbs) { double(submit_string: 'job id') }
+      let(:job_id) { 'job_id' }
+      let(:pbs) { double(submit_string: job_id) }
       let(:script_args) { { content: 'test_script' } }
       let(:script) { OodJob::Script.new script_args }
       let(:args) { { script: script } }
       subject { adapter.submit args }
 
       it 'returns job id' do
-        is_expected.to eq('job id')
+        is_expected.to eq(job_id)
       end
 
       context 'with :content' do
@@ -278,6 +279,29 @@ describe OodJob::Adapters::Torque do
             it { expect(pbs).to have_received(:submit_string).with(script_args[:content], queue: queue, headers: headers, resources: resources, envvars: envvars) }
           end
         end
+
+        %i(after afterok afternotok afterany).each do |after|
+          context "and :#{after} is defined as a single object" do
+            let(:_job_id) { '_job id' }
+            let(:_id)     { double(to_s: _job_id) }
+            let(:args)    { { script: script, after => _id } }
+            let(:headers) { { depend: "#{after}:#{_job_id}" } }
+
+            it { expect(_id).to have_received(:to_s).with(no_args) }
+            it { expect(pbs).to have_received(:submit_string).with(script_args[:content], queue: queue, headers: headers, resources: resources, envvars: envvars) }
+          end
+
+          context "and :#{after} is defined as an array" do
+            let(:_job_id) { [ '_job id0', '_job id1' ] }
+            let(:_id)     { [ double(to_s: _job_id[0]), double(to_s: _job_id[1]) ] }
+            let(:args)    { { script: script, after => _id } }
+            let(:headers) { { depend: "#{after}:#{_job_id.join(':')}" } }
+
+            it { expect(_id[0]).to have_received(:to_s).with(no_args) }
+            it { expect(_id[1]).to have_received(:to_s).with(no_args) }
+            it { expect(pbs).to have_received(:submit_string).with(script_args[:content], queue: queue, headers: headers, resources: resources, envvars: envvars) }
+          end
+        end
       end
 
       context 'and raises PBS::Error' do
@@ -309,13 +333,20 @@ describe OodJob::Adapters::Torque do
 
     context 'when :id is specified' do
       before { allow(PBS::Batch).to receive(:new) { pbs } }
+      let(:job_id)   { 'job id' }
       let(:job_hash) { {} }
-      let(:pbs) { double(get_jobs: { 'job id' => job_hash }) }
-      subject { adapter.info id: 'job id' }
+      let(:id)  { double(to_s: job_id) }
+      let(:pbs) { double(get_jobs: { job_id => job_hash }) }
+      subject { adapter.info id: id }
+
+      it 'duck-types :id' do
+        subject
+        expect(id).to have_received(:to_s).with(no_args)
+      end
 
       it 'gets the job info using PBS' do
         subject
-        expect(pbs).to have_received(:get_jobs).with(id: 'job id')
+        expect(pbs).to have_received(:get_jobs).with(id: job_id)
       end
 
       context 'and job is not running' do
@@ -354,7 +385,7 @@ describe OodJob::Adapters::Torque do
 
         it 'returns correct OodJob::Info object' do
           is_expected.to eql(OodJob::Info.new(
-            :id=>"job id",
+            :id=>job_id,
             :status=>:queued,
             :allocated_nodes=>[],
             :submit_host=>"oakley02.osc.edu",
@@ -414,7 +445,7 @@ describe OodJob::Adapters::Torque do
 
         it 'returns correct OodJob::Info object' do
           is_expected.to eql(OodJob::Info.new(
-            :id=>"job id",
+            :id=>job_id,
             :status=>:running,
             :allocated_nodes=>[
               {:name=>"n0635", :procs=>12},
@@ -443,7 +474,7 @@ describe OodJob::Adapters::Torque do
         before { expect(pbs).to receive(:get_jobs).and_raise(PBS::UnkjobidError) }
 
         it 'returns default OodJob::Info' do
-          is_expected.to eql(OodJob::Info.new(id: 'job id', status: :undetermined))
+          is_expected.to eql(OodJob::Info.new(id: job_id, status: :undetermined))
         end
       end
 
@@ -464,16 +495,23 @@ describe OodJob::Adapters::Torque do
       end
     end
 
-    context 'when valid arguments' do
+    context 'when :id is specified' do
       before { allow(PBS::Batch).to receive(:new) { pbs } }
-      let(:state) { 'Q' }
-      let(:pbs) { double(get_job: { 'job id' => { job_state: state } }) }
-      subject { adapter.status id: 'job id' }
+      let(:job_id) { 'job id' }
+      let(:state)  { 'Q' }
+      let(:id)  { double(to_s: job_id) }
+      let(:pbs) { double(get_job: { job_id => { job_state: state } }) }
+      subject { adapter.status id: id }
+
+      it 'duck-types :id' do
+        subject
+        expect(id).to have_received(:to_s).with(no_args)
+      end
 
       context 'and job is queued' do
         before { subject }
 
-        it { expect(pbs).to have_received(:get_job).with('job id', filters: [:job_state]) }
+        it { expect(pbs).to have_received(:get_job).with(job_id, filters: [:job_state]) }
         it { is_expected.to be_queued }
       end
 
@@ -481,7 +519,7 @@ describe OodJob::Adapters::Torque do
         let(:state) { 'H' }
         before { subject }
 
-        it { expect(pbs).to have_received(:get_job).with('job id', filters: [:job_state]) }
+        it { expect(pbs).to have_received(:get_job).with(job_id, filters: [:job_state]) }
         it { is_expected.to be_queued_held }
       end
 
@@ -489,7 +527,7 @@ describe OodJob::Adapters::Torque do
         let(:state) { 'S' }
         before { subject }
 
-        it { expect(pbs).to have_received(:get_job).with('job id', filters: [:job_state]) }
+        it { expect(pbs).to have_received(:get_job).with(job_id, filters: [:job_state]) }
         it { is_expected.to be_suspended }
       end
 
@@ -497,7 +535,7 @@ describe OodJob::Adapters::Torque do
         let(:state) { 'R' }
         before { subject }
 
-        it { expect(pbs).to have_received(:get_job).with('job id', filters: [:job_state]) }
+        it { expect(pbs).to have_received(:get_job).with(job_id, filters: [:job_state]) }
         it { is_expected.to be_running }
       end
 
@@ -505,7 +543,7 @@ describe OodJob::Adapters::Torque do
         let(:state) { 'C' }
         before { subject }
 
-        it { expect(pbs).to have_received(:get_job).with('job id', filters: [:job_state]) }
+        it { expect(pbs).to have_received(:get_job).with(job_id, filters: [:job_state]) }
         it { is_expected.to be_undetermined }
       end
 
@@ -535,14 +573,21 @@ describe OodJob::Adapters::Torque do
       end
     end
 
-    context 'when valid arguments' do
+    context 'when :id is specified' do
       before { allow(PBS::Batch).to receive(:new) { pbs } }
+      let(:job_id) { 'job id' }
+      let(:id)  { double(to_s: job_id) }
       let(:pbs) { double(hold_job: nil) }
-      subject { adapter.hold id: 'job id' }
+      subject { adapter.hold id: id }
+
+      it 'duck-types :id' do
+        subject
+        expect(id).to have_received(:to_s).with(no_args)
+      end
 
       it 'holds the job using PBS' do
         subject
-        expect(pbs).to have_received(:hold_job).with('job id')
+        expect(pbs).to have_received(:hold_job).with(job_id)
       end
 
       context 'and raises PBS::UnkjobidError' do
@@ -570,14 +615,21 @@ describe OodJob::Adapters::Torque do
       end
     end
 
-    context 'when valid arguments' do
+    context 'when :id is specified' do
       before { allow(PBS::Batch).to receive(:new) { pbs } }
+      let(:job_id) { 'job id' }
+      let(:id)  { double(to_s: job_id) }
       let(:pbs) { double(release_job: nil) }
-      subject { adapter.release id: 'job id' }
+      subject { adapter.release id: id }
+
+      it 'duck-types :id' do
+        subject
+        expect(id).to have_received(:to_s).with(no_args)
+      end
 
       it 'releases the job using PBS' do
         subject
-        expect(pbs).to have_received(:release_job).with('job id')
+        expect(pbs).to have_received(:release_job).with(job_id)
       end
 
       context 'and raises PBS::UnkjobidError' do
@@ -605,14 +657,21 @@ describe OodJob::Adapters::Torque do
       end
     end
 
-    context 'when valid arguments' do
+    context 'when :id is specified' do
       before { allow(PBS::Batch).to receive(:new) { pbs } }
+      let(:job_id) { 'job id' }
+      let(:id)  { double(to_s: job_id) }
       let(:pbs) { double(delete_job: nil) }
-      subject { adapter.delete id: 'job id' }
+      subject { adapter.delete id: id }
+
+      it 'duck-types :id' do
+        subject
+        expect(id).to have_received(:to_s).with(no_args)
+      end
 
       it 'deletes the job using PBS' do
         subject
-        expect(pbs).to have_received(:delete_job).with('job id')
+        expect(pbs).to have_received(:delete_job).with(job_id)
       end
 
       context 'and raises PBS::UnkjobidError' do
