@@ -1,29 +1,33 @@
 module OodJob
   # An object that describes the current state of a submitted job
   class Status
-    # Possible states a submitted job can be in:
-    #   # Job status cannot be determined
-    #   :undetermined
-    #
-    #   # Job is queued for being scheduled and executed
-    #   :queued
-    #
-    #   # Job has been placed on hold by the system, the administrator, or
-    #   # submitting user
-    #   :queued_held
-    #
-    #   # Job is running on an execution host
-    #   :running
-    #
-    #   # Job has been suspended by the user, the system, or the administrator
-    #   :suspended
-    STATES = %i(
-      undetermined
-      queued
-      queued_held
-      running
-      suspended
-    )
+    class << self
+      # Possible states a submitted job can be in:
+      #   # Job status cannot be determined
+      #   :undetermined
+      #
+      #   # Job is queued for being scheduled and executed
+      #   :queued
+      #
+      #   # Job has been placed on hold by the system, the administrator, or
+      #   # submitting user
+      #   :queued_held
+      #
+      #   # Job is running on an execution host
+      #   :running
+      #
+      #   # Job has been suspended by the user, the system, or the administrator
+      #   :suspended
+      def states
+        %i(
+          undetermined
+          queued
+          queued_held
+          running
+          suspended
+        )
+      end
+    end
 
     # The root exception class that all {Status} exceptions inherit from
     class Error < StandardError; end
@@ -38,7 +42,39 @@ module OodJob
     # @param state [#to_sym] status of job
     def initialize(state:, **_)
       @state = state.to_sym
-      raise InvalidState, "this is not a valid state: #{@state}" unless STATES.include?(@state)
+      raise InvalidState, "this is not a valid state: #{@state}" unless self.class.states.include?(@state)
+    end
+
+    # Convert object to symbol
+    # @return [Symbol] object as symbol
+    def to_sym
+      state
+    end
+
+    # Convert object to string
+    # @return [String] object as string
+    def to_s
+      state.to_s
+    end
+
+    # The comparison operator
+    # @param other [#to_sym] object to compare against
+    # @return [Boolean] whether objects are equivalent
+    def ==(other)
+      to_sym == other.to_sym
+    end
+
+    # Whether objects are identical to each other
+    # @param other [#to_sym] object to compare against
+    # @return [Boolean] whether objects are identical
+    def eql?(other)
+      self.class == other.class && self == other
+    end
+
+    # Generate a hash value for this object
+    # @return [Fixnum] hash value of object
+    def hash
+      [self.class, to_sym].hash
     end
 
     # @!method undetermined?
@@ -60,36 +96,28 @@ module OodJob
     # @!method suspended?
     #   Whether the status is suspended
     #   @return [Boolean] whether suspended
-    STATES.each do |method|
-      define_method "#{method}?" do
-        state == method
+    #
+    # Determine whether this method corresponds to a status check for a valid
+    # state. If so, then check whether this object is in that valid state.
+    # @param method_name the method name called
+    # @param arguments the arguments to the call
+    # @param block an optional block for the call
+    # @raise [NoMethodError] if method name doesn't pass checks
+    # @return [Boolean] whether it is in this state
+    def method_missing(method_name, *arguments, &block)
+      if /^(?<other_state>.+)\?$/ =~ method_name && self.class.states.include?(other_state.to_sym)
+        self == other_state
+      else
+        super
       end
     end
 
-    # Convert object to symbol
-    # @return [Symbol] object as symbol
-    def to_sym
-      state
-    end
-
-    # The comparison operator
-    # @param other [#to_sym] object to compare against
-    # @return [Boolean] whether objects are equivalent
-    def ==(other)
-      to_sym == other.to_sym
-    end
-
-    # Whether objects are identical to each other
-    # @param other [#to_sym] object to compare against
-    # @return [Boolean] whether objects are identical
-    def eql?(other)
-      self.class == other.class && self == other
-    end
-
-    # Generate a hash value for this object
-    # @return [Fixnum] hash value of object
-    def hash
-      [self.class, to_sym].hash
+    # Determines whether this method corresponds to a status check for a valid
+    # state
+    # @param method_name the method name called
+    # @return [Boolean]
+    def respond_to_missing?(method_name, include_private = false)
+      /^(?<other_state>.+)\?$/ =~ method_name && self.class.states.include?(other_state.to_sym) || super
     end
   end
 end

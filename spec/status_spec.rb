@@ -28,9 +28,10 @@ describe OodJob::Status do
     it { is_expected.not_to respond_to("#{attrib}=") }
   end
   states.each do |state|
-    it { is_expected.to respond_to("#{state}?").with(0).arguments }
+    it { is_expected.to respond_to("#{state}?") }
   end
   it { is_expected.to respond_to(:to_sym).with(0).arguments }
+  it { is_expected.to respond_to(:to_s).with(0).arguments }
 
   it_behaves_like 'a value object' do
     let(:diff_args)  { { state: :queued } }
