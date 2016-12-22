@@ -147,7 +147,7 @@ module OodJob
     # @param wall_time [#to_i, nil] max real time
     # @param accounting_id [#to_s, nil] accounting id
     # @param min_procs [#to_i, nil] minimum number of procs
-    # @param nodes [#to_h, #to_s, Hash{#to_h, #to_s => #to_i}, nil] list of nodes
+    # @param nodes [#to_h, #to_s, Array<#to_h, #to_s>, nil] list of nodes
     # @param native [Object, nil] native specifications
     def initialize(content:, args: nil, submit_as_hold: nil, rerunnable: nil,
                    job_environment: nil, workdir: nil, email: nil,
