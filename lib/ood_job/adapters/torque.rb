@@ -30,38 +30,38 @@ module OodJob
 
         # Set headers
         headers = {}
-        headers.merge!(job_arguments: script.args.join(' ')) if !script.args.nil?
+        headers.merge!(job_arguments: script.args.join(' ')) unless script.args.nil?
         headers.merge!(Hold_Types: :u) if script.submit_as_hold
-        headers.merge!(Rerunable: script.rerunnable ? 'y' : 'n') if !script.rerunnable.nil?
-        headers.merge!(init_work_dir: script.workdir) if !script.workdir.nil?
-        headers.merge!(Mail_Users: script.email.join(',')) if !script.email.nil?
+        headers.merge!(Rerunable: script.rerunnable ? 'y' : 'n') unless script.rerunnable.nil?
+        headers.merge!(init_work_dir: script.workdir) unless script.workdir.nil?
+        headers.merge!(Mail_Users: script.email.join(',')) unless script.email.nil?
         mail_points  = ''
         mail_points += 'b' if script.email_on_started
         mail_points += 'e' if script.email_on_terminated
-        headers.merge!(Mail_Points: mail_points) if !mail_points.empty?
-        headers.merge!(Job_Name: script.job_name) if !script.job_name.nil?
+        headers.merge!(Mail_Points: mail_points) unless mail_points.empty?
+        headers.merge!(Job_Name: script.job_name) unless script.job_name.nil?
         # ignore input_path (not defined in Torque)
-        headers.merge!(Output_Path: script.output_path) if !script.output_path.nil?
-        headers.merge!(Error_Path: script.error_path) if !script.error_path.nil?
+        headers.merge!(Output_Path: script.output_path) unless script.output_path.nil?
+        headers.merge!(Error_Path: script.error_path) unless script.error_path.nil?
         headers.merge!(Join_Path: 'oe') if script.join_files
-        headers.merge!(reservation_id: script.reservation_id) if !script.reservation_id.nil?
-        headers.merge!(Priority: script.priority) if !script.priority.nil?
-        headers.merge!(Execution_Time: script.start_time.localtime.strftime("%C%y%m%d%H%M.%S")) if !script.start_time.nil?
-        headers.merge!(Account_Name: script.accounting_id) if !script.accounting_id.nil?
+        headers.merge!(reservation_id: script.reservation_id) unless script.reservation_id.nil?
+        headers.merge!(Priority: script.priority) unless script.priority.nil?
+        headers.merge!(Execution_Time: script.start_time.localtime.strftime("%C%y%m%d%H%M.%S")) unless script.start_time.nil?
+        headers.merge!(Account_Name: script.accounting_id) unless script.accounting_id.nil?
 
         # Set dependencies
         depend = []
-        depend << "after:#{after.join(':')}"           if !after.empty?
-        depend << "afterok:#{afterok.join(':')}"       if !afterok.empty?
-        depend << "afternotok:#{afternotok.join(':')}" if !afternotok.empty?
-        depend << "afterany:#{afterany.join(':')}"     if !afterany.empty?
-        headers.merge!(depend: depend.join(','))        if !depend.empty?
+        depend << "after:#{after.join(':')}"           unless after.empty?
+        depend << "afterok:#{afterok.join(':')}"       unless afterok.empty?
+        depend << "afternotok:#{afternotok.join(':')}" unless afternotok.empty?
+        depend << "afterany:#{afterany.join(':')}"     unless afterany.empty?
+        headers.merge!(depend: depend.join(','))       unless depend.empty?
 
         # Set resources
         resources = {}
-        resources.merge!(mem: "#{script.min_phys_memory}KB") if !script.min_phys_memory.nil?
-        resources.merge!(walltime: seconds_to_duration(script.wall_time)) if !script.wall_time.nil?
-        resources.merge!(procs: script.min_procs) if !script.min_procs.nil?
+        resources.merge!(mem: "#{script.min_phys_memory}KB") unless script.min_phys_memory.nil?
+        resources.merge!(walltime: seconds_to_duration(script.wall_time)) unless script.wall_time.nil?
+        resources.merge!(procs: script.min_procs) unless script.min_procs.nil?
         if script.nodes && !script.nodes.empty?
           nodes = uniq_array(script.nodes)
           resources.merge!(nodes: nodes.map {|k, v| k.is_a?(NodeRequest) ? node_request_to_str(k, v) : k }.join('+'))

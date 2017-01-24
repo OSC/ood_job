@@ -157,30 +157,32 @@ module OodJob
                    priority: nil, min_phys_memory: nil, start_time: nil,
                    wall_time: nil, accounting_id: nil, min_procs: nil, nodes: nil,
                    native: nil, **_)
-      @content             = content.respond_to?(:read) ? content.read : content.to_s
-      @args                = args.map(&:to_s) unless args.nil?
-      @submit_as_hold      = submit_as_hold unless submit_as_hold.nil?
-      @rerunnable          = rerunnable unless rerunnable.nil?
-      @job_environment     = job_environment.each_with_object({}) { |(k, v), h| h[k.to_s] = v.to_s } unless job_environment.nil?
-      @workdir             = Pathname.new(workdir.to_s) unless workdir.nil?
-      @email               = Array.wrap(email).map(&:to_s) unless email.nil?
-      @email_on_started    = email_on_started unless email_on_started.nil?
-      @email_on_terminated = email_on_terminated unless email_on_terminated.nil?
-      @job_name            = job_name.to_s unless job_name.nil?
-      @input_path          = Pathname.new(input_path.to_s) unless input_path.nil?
-      @output_path         = Pathname.new(output_path.to_s) unless output_path.nil?
-      @error_path          = Pathname.new(error_path.to_s) unless error_path.nil?
-      @join_files          = join_files unless join_files.nil?
-      @reservation_id      = reservation_id.to_s unless reservation_id.nil?
-      @queue_name          = queue_name.to_s unless queue_name.nil?
-      @priority            = priority.to_i unless priority.nil?
-      @min_phys_memory     = min_phys_memory.to_i unless min_phys_memory.nil?
-      @start_time          = Time.at(start_time.to_i) unless start_time.nil?
-      @wall_time           = wall_time.to_i unless wall_time.nil?
-      @accounting_id       = accounting_id.to_s unless accounting_id.nil?
-      @min_procs           = min_procs.to_i unless min_procs.nil?
-      @nodes               = Array.wrap(nodes).map { |n| n.respond_to?(:to_h) ? NodeRequest.new(n.to_h) : n.to_s } unless nodes.nil?
-      @native              = native
+      @content = content.respond_to?(:read) ? content.read : content.to_s
+
+      @submit_as_hold      = submit_as_hold
+      @rerunnable          = rerunnable
+      @email_on_started    = email_on_started
+      @email_on_terminated = email_on_terminated
+      @join_files          = join_files
+
+      @args             = args            && args.map(&:to_s)
+      @job_environment  = job_environment && job_environment.each_with_object({}) { |(k, v), h| h[k.to_s] = v.to_s }
+      @workdir          = workdir         && Pathname.new(workdir.to_s)
+      @email            = email           && Array.wrap(email).map(&:to_s)
+      @job_name         = job_name        && job_name.to_s
+      @input_path       = input_path      && Pathname.new(input_path.to_s)
+      @output_path      = output_path     && Pathname.new(output_path.to_s)
+      @error_path       = error_path      && Pathname.new(error_path.to_s)
+      @reservation_id   = reservation_id  && reservation_id.to_s
+      @queue_name       = queue_name      && queue_name.to_s
+      @priority         = priority        && priority.to_i
+      @min_phys_memory  = min_phys_memory && min_phys_memory.to_i
+      @start_time       = start_time      && Time.at(start_time.to_i)
+      @wall_time        = wall_time       && wall_time.to_i
+      @accounting_id    = accounting_id   && accounting_id.to_s
+      @min_procs        = min_procs       && min_procs.to_i
+      @nodes            = nodes           && Array.wrap(nodes).map { |n| n.respond_to?(:to_h) ? NodeRequest.new(n.to_h) : n.to_s }
+      @native           = native
     end
 
     # Convert object to hash

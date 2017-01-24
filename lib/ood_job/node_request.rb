@@ -16,8 +16,8 @@ module OodJob
     # @param procs [#to_i, nil] number of procs
     # @param properties [#to_s, Array<#to_s>, nil] list of properties
     def initialize(procs: nil, properties: nil, **_)
-      @procs      = procs.to_i unless procs.nil?
-      @properties = Array.wrap(properties).map(&:to_s) unless properties.nil?
+      @procs      = procs      && procs.to_i
+      @properties = properties && Array.wrap(properties).map(&:to_s)
     end
 
     # Convert object to hash
