@@ -120,13 +120,6 @@ describe OodJob::Script do
         it { expect(args[:email][1]).to have_received(:to_s).with(no_args) }
       end
 
-      context 'and :content responds to #read' do
-        let(:content) { double(read: 'hello world') }
-        let(:args) { super().merge content: content }
-
-        it { expect(content).to have_received(:read).with(no_args) }
-      end
-
       context 'and :content responds to #to_s' do
         it { expect(args[:content]).to have_received(:to_s).with(no_args) }
       end
@@ -194,12 +187,6 @@ describe OodJob::Script do
 
   describe '#content' do
     subject { script.content }
-
-    context 'when responds to #read' do
-      let(:args) { super().merge content: StringIO.new('hello world!') }
-
-      it { is_expected.to eq('hello world!') }
-    end
 
     context 'when responds to #to_s' do
       let(:args) { super().merge content: 'test 123' }

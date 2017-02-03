@@ -7,7 +7,7 @@ module OodJob
   class Script
     using Refinements::ArrayWrap
 
-    # String describing the script to be executed on the remote host
+    # Content of the script to be executed on the remote host
     # @return [String] the script content
     attr_reader :content
 
@@ -125,7 +125,7 @@ module OodJob
     # @return [Object, nil] native specifications
     attr_reader :native
 
-    # @param content [#read, #to_s] the script content
+    # @param content [#to_s] the script content
     # @param args [Array<#to_s>, nil] arguments supplied to script
     # @param submit_as_hold [Boolean, nil] whether job is held after submit
     # @param rerunnable [Boolean, nil] whether job can be restarted
@@ -157,7 +157,7 @@ module OodJob
                    priority: nil, min_phys_memory: nil, start_time: nil,
                    wall_time: nil, accounting_id: nil, min_procs: nil, nodes: nil,
                    native: nil, **_)
-      @content = content.respond_to?(:read) ? content.read : content.to_s
+      @content = content.to_s
 
       @submit_as_hold      = submit_as_hold
       @rerunnable          = rerunnable

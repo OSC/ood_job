@@ -28,27 +28,18 @@ $ gem install ood_job
 ### Create a Job Script
 
 First we will need a script to submit to the resource manager. The simplest
-script object can consist of either a file or a string of shell code.
+script object consists of just a string of shell code.
 
 ```ruby
-# A path to a file
-script = OodJob::Script.new(content: Pathname.new("/path/to/my/script"))
-
-# Or a string IO
-script = OodJob::Script.new(content: StringIO.new("echo 'hello world'"))
-
-# Or a string
+# Define a simple script
 script = OodJob::Script.new(content: "echo 'hello world'")
 ```
-
-A script object must be supplied with a content object that responds to the
-method `#read` or `#to_s`.
 
 With time you will create more complicated script objects:
 
 ```ruby
 script = OodJob::Script.new(
-  content: Pathname.new("/path/to/my/script"),
+  content: Pathname.new("/path/to/my/script").read,
   job_name: "my_solver_job",
   wall_time: 3600,                         # walltime=01:00:00
   nodes: [NodeRequest.new(procs: 12)]*20,  # nodes=20:ppn=12
