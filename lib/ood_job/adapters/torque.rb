@@ -165,7 +165,7 @@ module OodJob
       # @see Adapter#delete
       def delete(id:)
         pbs.delete_job(id.to_s)
-      rescue PBS::UnkjobidError
+      rescue PBS::UnkjobidError, PBS::BadstateError
         nil
       rescue PBS::Error => e
         raise Error, e.message
