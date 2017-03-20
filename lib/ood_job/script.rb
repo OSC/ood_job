@@ -98,10 +98,6 @@ module OodJob
     # @return [String, nil] accounting id
     attr_reader :accounting_id
 
-    # The minimum number of procs requested per job
-    # @return [Fixnum, nil] minimum number of procs
-    attr_reader :min_procs
-
     # Node or list of nodes detailing the specifications the job should run on
     # @example Job to run on a list of defined nodes
     #   my_job.nodes
@@ -146,7 +142,6 @@ module OodJob
     # @param start_time [#to_i, nil] eligible start time
     # @param wall_time [#to_i, nil] max real time
     # @param accounting_id [#to_s, nil] accounting id
-    # @param min_procs [#to_i, nil] minimum number of procs
     # @param nodes [#to_h, #to_s, Array<#to_h, #to_s>, nil] list of nodes
     # @param native [Object, nil] native specifications
     def initialize(content:, args: nil, submit_as_hold: nil, rerunnable: nil,
@@ -155,8 +150,8 @@ module OodJob
                    input_path: nil, output_path: nil, error_path: nil,
                    join_files: nil, reservation_id: nil, queue_name: nil,
                    priority: nil, min_phys_memory: nil, start_time: nil,
-                   wall_time: nil, accounting_id: nil, min_procs: nil, nodes: nil,
-                   native: nil, **_)
+                   wall_time: nil, accounting_id: nil, nodes: nil, native: nil,
+                   **_)
       @content = content.to_s
 
       @submit_as_hold      = submit_as_hold
@@ -180,7 +175,6 @@ module OodJob
       @start_time       = start_time      && Time.at(start_time.to_i)
       @wall_time        = wall_time       && wall_time.to_i
       @accounting_id    = accounting_id   && accounting_id.to_s
-      @min_procs        = min_procs       && min_procs.to_i
       @nodes            = nodes           && Array.wrap(nodes).map { |n| n.respond_to?(:to_h) ? NodeRequest.new(n.to_h) : n.to_s }
       @native           = native
     end
@@ -210,7 +204,6 @@ module OodJob
         start_time:          start_time,
         wall_time:           wall_time,
         accounting_id:       accounting_id,
-        min_procs:           min_procs,
         nodes:               nodes,
         native:              native
       }

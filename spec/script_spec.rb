@@ -4,8 +4,8 @@ describe OodJob::Script do
   attribs = %i(
     accounting_id args content email email_on_started email_on_terminated
     error_path input_path job_environment job_name join_files min_phys_memory
-    min_procs native nodes output_path priority queue_name rerunnable
-    reservation_id start_time submit_as_hold wall_time workdir
+    native nodes output_path priority queue_name rerunnable reservation_id
+    start_time submit_as_hold wall_time workdir
   )
 
   # fixture
@@ -23,7 +23,6 @@ describe OodJob::Script do
       job_name: 'my_job',
       join_files: true,
       min_phys_memory: 123,
-      min_procs: 1000,
       native: nil,
       nodes: [ "node1", OodJob::NodeRequest.new(procs: 100) ],
       output_path: Pathname.new("/path/to/output"),
@@ -52,7 +51,6 @@ describe OodJob::Script do
       job_name: double(to_s: orig_args[:job_name].to_s),
       join_files: orig_args[:join_files],
       min_phys_memory: double(to_i: orig_args[:min_phys_memory].to_i),
-      min_procs: double(to_i: orig_args[:min_procs].to_i),
       native: orig_args[:native],
       nodes: [ double(to_s: orig_args[:nodes][0].to_s), double(to_h: orig_args[:nodes][1].to_h) ],
       output_path: double(to_s: orig_args[:output_path].to_s),
@@ -99,7 +97,6 @@ describe OodJob::Script do
       it { expect(args[:job_environment].first[1]).to have_received(:to_s).with(no_args) }
       it { expect(args[:job_name]).to have_received(:to_s).with(no_args) }
       it { expect(args[:min_phys_memory]).to have_received(:to_i).with(no_args) }
-      it { expect(args[:min_procs]).to have_received(:to_i).with(no_args) }
       it { expect(args[:output_path]).to have_received(:to_s).with(no_args) }
       it { expect(args[:priority]).to have_received(:to_i).with(no_args) }
       it { expect(args[:queue_name]).to have_received(:to_s).with(no_args) }

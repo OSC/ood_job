@@ -61,7 +61,6 @@ module OodJob
         resources = {}
         resources.merge!(mem: "#{script.min_phys_memory}KB") unless script.min_phys_memory.nil?
         resources.merge!(walltime: seconds_to_duration(script.wall_time)) unless script.wall_time.nil?
-        resources.merge!(procs: script.min_procs) unless script.min_procs.nil?
         if script.nodes && !script.nodes.empty?
           nodes = uniq_array(script.nodes)
           resources.merge!(nodes: nodes.map {|k, v| k.is_a?(NodeRequest) ? node_request_to_str(k, v) : k }.join('+'))

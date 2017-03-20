@@ -227,13 +227,6 @@ describe OodJob::Adapters::Torque do
           it { expect(pbs).to have_received(:submit_string).with(script_args[:content], queue: queue, headers: headers, resources: resources, envvars: envvars) }
         end
 
-        context 'and :min_procs' do
-          let(:script_args) { super().merge min_procs: 1000 }
-          let(:resources) { { procs: 1000 } }
-
-          it { expect(pbs).to have_received(:submit_string).with(script_args[:content], queue: queue, headers: headers, resources: resources, envvars: envvars) }
-        end
-
         context 'and :nodes' do
           context 'as single node name' do
             let(:script_args) { super().merge nodes: 'node1' }
