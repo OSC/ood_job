@@ -467,7 +467,7 @@ describe OodJob::Adapters::Torque do
         before { expect(pbs).to receive(:get_jobs).and_raise(PBS::UnkjobidError) }
 
         it 'returns default OodJob::Info' do
-          is_expected.to eql(OodJob::Info.new(id: job_id, status: :undetermined))
+          is_expected.to eql(OodJob::Info.new(id: job_id, status: :completed))
         end
       end
 
@@ -532,8 +532,16 @@ describe OodJob::Adapters::Torque do
         it { is_expected.to be_running }
       end
 
-      context 'and job is unknown PBS state' do
+      context 'and job is completed' do
         let(:state) { 'C' }
+        before { subject }
+
+        it { expect(pbs).to have_received(:get_job).with(job_id, filters: [:job_state]) }
+        it { is_expected.to be_completed }
+      end
+
+      context 'and job is unknown PBS state' do
+        let(:state) { 'X' }
         before { subject }
 
         it { expect(pbs).to have_received(:get_job).with(job_id, filters: [:job_state]) }
@@ -546,7 +554,7 @@ describe OodJob::Adapters::Torque do
         it 'does not raise error' do
           expect { subject }.not_to raise_error
         end
-        it { is_expected.to be_undetermined }
+        it { is_expected.to be_completed }
       end
 
       context 'and raises PBS::Error' do

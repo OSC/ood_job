@@ -14,7 +14,8 @@ module OodJob
         'H' => :queued_held,
         'R' => :running,
         'S' => :suspended,
-        'E' => :running         # exiting, but still running
+        'E' => :running,        # exiting, but still running
+        'C' => :completed
       }
 
       # Submit a job with the attributes defined in the job template instance
@@ -109,10 +110,10 @@ module OodJob
         end
         info_ary.size == 1 ? info_ary.first : info_ary
       rescue PBS::UnkjobidError
-        # set undetermined status if can't find job id
+        # set completed status if can't find job id
         Info.new(
           id: id,
-          status: :undetermined
+          status: :completed
         )
       rescue PBS::Error => e
         raise Error, e.message
@@ -128,8 +129,8 @@ module OodJob
         char = pbs.get_job(id, filters: [:job_state])[id][:job_state]
         Status.new(state: STATE_MAP.fetch(char, :undetermined))
       rescue PBS::UnkjobidError
-        # set undetermined status if can't find job id
-        Status.new(state: :undetermined)
+        # set completed status if can't find job id
+        Status.new(state: :completed)
       rescue PBS::Error => e
         raise Error, e.message
       end

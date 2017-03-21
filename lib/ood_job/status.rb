@@ -18,6 +18,9 @@ module OodJob
       #
       #   # Job has been suspended by the user, the system, or the administrator
       #   :suspended
+      #
+      #   # Job is completed and not running on an execution host
+      #   :completed
       def states
         %i(
           undetermined
@@ -25,6 +28,7 @@ module OodJob
           queued_held
           running
           suspended
+          completed
         )
       end
     end
@@ -96,6 +100,10 @@ module OodJob
     # @!method suspended?
     #   Whether the status is suspended
     #   @return [Boolean] whether suspended
+    #
+    # @!method completed?
+    #   Whether the status is completed
+    #   @return [Boolean] whether completed
     #
     # Determine whether this method corresponds to a status check for a valid
     # state. If so, then check whether this object is in that valid state.
