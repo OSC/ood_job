@@ -12,6 +12,7 @@ module OodJob
       STATE_MAP = {
         'Q' => :queued,
         'H' => :queued_held,
+        'T' => :queued_held,    # transiting, most like a held job
         'R' => :running,
         'S' => :suspended,
         'E' => :running,        # exiting, but still running
