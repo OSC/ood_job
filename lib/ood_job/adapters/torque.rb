@@ -109,6 +109,7 @@ module OodJob
         end
         info_ary.size == 1 ? info_ary.first : info_ary
       rescue PBS::UnkjobidError
+        # set undetermined status if can't find job id
         Info.new(
           id: id,
           status: :undetermined
@@ -127,6 +128,7 @@ module OodJob
         char = pbs.get_job(id, filters: [:job_state])[id][:job_state]
         Status.new(state: STATE_MAP.fetch(char, :undetermined))
       rescue PBS::UnkjobidError
+        # set undetermined status if can't find job id
         Status.new(state: :undetermined)
       rescue PBS::Error => e
         raise Error, e.message
@@ -140,6 +142,7 @@ module OodJob
       def hold(id:)
         pbs.hold_job(id.to_s)
       rescue PBS::UnkjobidError
+        # assume successful job hold if can't find job id
         nil
       rescue PBS::Error => e
         raise Error, e.message
@@ -153,6 +156,7 @@ module OodJob
       def release(id:)
         pbs.release_job(id.to_s)
       rescue PBS::UnkjobidError
+        # assume successful job release if can't find job id
         nil
       rescue PBS::Error => e
         raise Error, e.message
@@ -166,6 +170,8 @@ module OodJob
       def delete(id:)
         pbs.delete_job(id.to_s)
       rescue PBS::UnkjobidError, PBS::BadstateError
+        # assume successful job deletion if can't find job id
+        # assume successful job deletion if job is exiting or completed
         nil
       rescue PBS::Error => e
         raise Error, e.message
